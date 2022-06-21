@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- CSS BOOTSTRAP -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+    integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+  <!-- CSS PROPIO -->
+  <link rel="stylesheet" href="./css/style.css">
+  <!-- DEPENDECIAS CLIENTE SOCKET IO -->
+  <script src="/socket.io/socket.io.js"></script>
+  <title>DESAFIO 21 - SESSION</title>
+</head>
+
+<body>
+  <div>
+    <!-- Inicio Formulario Producto -->
+    <h2 style="text-align:center; margin-top:1rem">FORMULARIO DE INGRESO PRODUCTO</h2>
+    <div class="container bg-secondary text-white p-2">
+
+      <div class="mb-3">
+        <label for="title" class="form-label">PRODUCTO</label>
+        <input type="text" class="form-control" id="title" name="title" placeholder="Ejemplo: Cafe" autocomplete="off">
+      </div>
+      <div class="mb-3">
+        <label for="price" class="form-label">PRECIO</label>
+        <input type="number" class="form-control" id="price" name="price" placeholder="Ejemplo: 23" autocomplete="off">
+      </div>
+      <div class="mb-3">
+        <label for="thumbnail" class="form-label">IMAGEN</label>
+        <input type="text" class="form-control" id="thumbnail" name="thumbnail"
+          placeholder="Ejemplo: https://www.iconfinder.com/icons/889376/barista_coffee_doppio_espresso_icon"
+          autocomplete="off">
+      </div>
+      <button type="submit" class="btn btn-primary btn-sm" id="btnForm">AGREGAR</button>
+      <!-- Fin Formulario Producto -->
+
+      <!-- Inicio Listado Productos -->
+
+    </div>
+    <div id="tituloListaProductos">
+      <h2 style="text-align:center; margin:1rem">PRODUCTOS</h2>
+    </div>
+    <div class="container bg-light text-dark p-2">
+      <table class="table table-striped" id="table">
+        <thead>
+          <tr>
+            <th>PRODUCTO</th>
+            <th>PRECIO</th>
+            <th>IMAGEN</th>
+          </tr>
+        </thead>
+        <tbody id="tableProd">
+          <template id="templateList">
+            <tr>
+              <td id="prodTitle"></td>
+              <td id="prodPrice"></td>
+              <td><img src="" alt="imagen" id="prodImg" style="width: 10%"></td>
+            </tr>
+          </template>
+        </tbody>
+
+      </table>
+
+      <!-- Fin Listado Productos -->
+      <!-- Alerta en caso que no haya productos cargados -->
+      <h3 id="aviso"></h3>
+    </div>
+  </div>
+
+
+  <hr>
+  <!-- Inicio Chat -->
+  <div class="container bg-secondary text-white p-2" id="divChat">
+
+    <h1 style="text-align: center">CHAT</h1>
+    <div style="display:flex; justify-content:space-around">
+      <div>
+        <div id="ventana">
+          <div id="pantallaOld"></div>
+          <hr>
+          <div id="pantalla"></div>
+        </div>
+      </div>
+      <div>
+        <button type="submit" id="btnOldMsg" class="btn btn-warning btn-sm">Mensaje Guardados</button>
+        <input type="text" id="userChat" placeholder="E-mail" required>
+        <input type="text" id="messageChat" placeholder="Mensaje" required>
+        <button type="submit" id="btnChat" class="btn btn-primary btn-sm">Enviar</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Fin Chat -->
+  <script src="js/client.js"></script>
+</body>
+
+</html>
