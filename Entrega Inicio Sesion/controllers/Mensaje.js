@@ -1,10 +1,13 @@
 import MensajeModel from '../models/mensajeSchema.js';
+import EcommerceDbConnect from '../config/mongooseEcommerce.js';
 
 class Mensaje {
 
-    constructor() { }
+    constructor () {
+        this.cxn = new EcommerceDbConnect()
+    }
 
-    async addMsg(req, res) {
+       async addMsg(req, res) {
         try {
             if (!req) {
                 return res.status(404).json({ mensaje: 'Error al agregar un producto' })
