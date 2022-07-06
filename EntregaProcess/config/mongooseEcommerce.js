@@ -1,4 +1,7 @@
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+dotenv.config();
+
 
 export default class EcommerceDbConnect {
 
@@ -7,7 +10,7 @@ export default class EcommerceDbConnect {
     }
 
     createConnection() {
-        const uri = 'mongodb+srv://admin1:admin1@ecommerce.c98cs.mongodb.net/?retryWrites=true&w=majority'
+        const uri = process.env.MONGO_URL;
         const options = {
             useNewUrlParser: true, 
             useUnifiedTopology: true

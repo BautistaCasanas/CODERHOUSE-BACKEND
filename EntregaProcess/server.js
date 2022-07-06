@@ -7,14 +7,20 @@ import passport from 'passport';
 import cookieParser from 'cookie-parser';
 import flash from 'connect-flash'
 import morgan from 'morgan';
+import dotenv from 'dotenv';
+dotenv.config();
 import('./passport/passport.js')
 
 /* -- Importacion de Rutas -- */
 import router from './routes/productos.routes.js';
 import routerMsg from './routes/mensajes.routes.js';
 import usersRoutes from './routes/users.routes.js';
+import infoRouter from './routes/info.routes.js';
+import randomsRouter from "./routes/randoms.routes.js";
+
 import Mensaje from './controllers/Mensaje.js';
 import Producto from './controllers/Producto.js';
+
 const msg = new Mensaje();
 const prodClass = new Producto();
 
@@ -23,7 +29,7 @@ const prodClass = new Producto();
 const app = express();
 const httpServer = new HttpServer(app);
 const io = new IOServer(httpServer);
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
 /* -- MIDDLEWARES -- */
 app.use(cookieParser())
@@ -58,7 +64,9 @@ app.set('view engine', 'ejs')
 /* -- ENDPOINTS -- */
 app.use('/api/productos', router);
 app.use('/mensajes', routerMsg);
-app.use('/user', usersRoutes)
+app.use('/user', usersRoutes);
+app.use('/info', infoRouter);
+app.use('/randoms', randomsRouter);
 app.get('/', function (req, res) { res.render('index') });
 
 
