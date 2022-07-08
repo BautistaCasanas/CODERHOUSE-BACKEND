@@ -10,13 +10,15 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 dotenv.config();
 import('./passport/passport.js')
+import cluster from 'cluster';
+import os from 'os';
+const numCPUs = os.cpus().length;
 
 /* -- Importacion de Rutas -- */
 import router from './routes/productos.routes.js';
 import routerMsg from './routes/mensajes.routes.js';
 import usersRoutes from './routes/users.routes.js';
 import infoRouter from './routes/info.routes.js';
-import randomsRouter from "./routes/randoms.routes.js";
 
 import Mensaje from './controllers/Mensaje.js';
 import Producto from './controllers/Producto.js';
@@ -29,7 +31,7 @@ const prodClass = new Producto();
 const app = express();
 const httpServer = new HttpServer(app);
 const io = new IOServer(httpServer);
-const PORT = process.env.PORT || 8080;
+const PORT = parseInt(process.argv[2]) || 8080;
 
 /* -- MIDDLEWARES -- */
 app.use(cookieParser())
@@ -66,7 +68,6 @@ app.use('/api/productos', router);
 app.use('/mensajes', routerMsg);
 app.use('/user', usersRoutes);
 app.use('/info', infoRouter);
-app.use('/randoms', randomsRouter);
 app.get('/', function (req, res) { res.render('index') });
 
 
@@ -95,8 +96,30 @@ io.on('connection', socket => {
 
 
 
-/* ---- SERVIDOR ---- */
-const server = httpServer.listen(PORT, () => {
-    console.log(`** Servidor HTTP en puerto: ${server.address().port}`);
-})
-server.on("error", error => console.log(`Error en servidor ${error}`));
+/* -------------------- Servidor ---------------------- */
+const server = servidor( 'CLUSTER' /*Completar según el servidor 'CLUSTER' || 'FORK'*/ ) 
+
+function servidor(args) {
+    if (args == 'FORK') {
+        httpServer.listen(PORT, () => {
+            console.log(`Servidor en Puerto ${PORT} - PID WORKER: ${process.pid}`);
+            app.on("error", error => console.log(`Error en servidor ${error}`));
+        })
+    } else {
+        if (cluster.isMaster) {
+            console.log(numCPUs);
+            console.log(`PID MASTER ${process.pid}`);
+
+            for (let i = 0; i < numCPUs; i++) {cluster.fork()}
+
+            cluster.on('exit', worker => {
+                console.log('Worker', worker.process.pid, 'died', new Date().toLocaleString())
+                cluster.fork()
+            })
+        } else {
+            app.listen(PORT, err => {
+                if (!err) console.log(`Servidor express escuchando en el puerto ${PORT} - PID WORKER ${process.pid}`)
+            })
+        }
+    }
+}
