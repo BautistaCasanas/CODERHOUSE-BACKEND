@@ -13,6 +13,8 @@ import('./passport/passport.js')
 import cluster from 'cluster';
 import os from 'os';
 const numCPUs = os.cpus().length;
+import {logger} from "./config/winston.js";
+
 
 /* -- Importacion de Rutas -- */
 import router from './routes/productos.routes.js';
@@ -76,7 +78,7 @@ app.get('/', function (req, res) { res.render('index') });
 let toChat = []
 
 io.on('connection', socket => {
-    console.log(`Cliente ID:${socket.id} inició conexión`)
+    logger.info.info(`Cliente ID:${socket.id} inició conexión`)
     io.sockets.emit('new-message-server', toChat)
 
     socket.on('new-message', async data => {
@@ -97,29 +99,31 @@ io.on('connection', socket => {
 
 
 /* -------------------- Servidor ---------------------- */
-const server = servidor( 'CLUSTER' /*Completar según el servidor 'CLUSTER' || 'FORK'*/ ) 
+const server = servidor (process.argv[3] || 'FORK') 
 
-function servidor(args) {
-    if (args == 'FORK') {
+function servidor(argv) {
+    if (argv == 'FORK') {
         httpServer.listen(PORT, () => {
-            console.log(`Servidor en Puerto ${PORT} - PID WORKER: ${process.pid}`);
-            app.on("error", error => console.log(`Error en servidor ${error}`));
+            logger.info.info(`Servidor en Puerto ${PORT} Fork Mode - PID WORKER: ${process.pid}`);
+            app.on("error", error =>logger.warn.warn(`Error en servidor ${error}`));
         })
-    } else {
+    }
+    if (argv == 'CLUSTER') {
         if (cluster.isMaster) {
             console.log(numCPUs);
-            console.log(`PID MASTER ${process.pid}`);
+            logger.info.info(`PID MASTER · Cluster Mode ${process.pid}`);
 
-            for (let i = 0; i < numCPUs; i++) {cluster.fork()}
+            for (let i = 0; i < numCPUs; i++) { cluster.fork() }
 
-            cluster.on('exit', worker => {
-                console.log('Worker', worker.process.pid, 'died', new Date().toLocaleString())
-                cluster.fork()
-            })
-        } else {
-            app.listen(PORT, err => {
-                if (!err) console.log(`Servidor express escuchando en el puerto ${PORT} - PID WORKER ${process.pid}`)
-            })
+            cluster.on('online', function(worker) {
+                logger.info.info('Worker ' + worker.process.pid + ' is online');
+            });
+        
+            cluster.on('exit', function(worker, code, signal) {
+                logger.info.info('Worker ' + worker.process.pid + ' died with code: ' + code + ', and signal: ' + signal);
+                logger.info.info('Starting a new worker');
+                cluster.fork();
+            });
         }
     }
 }
